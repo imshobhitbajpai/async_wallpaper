@@ -256,7 +256,7 @@ public class AsyncWallpaperPlugin extends Application implements FlutterPlugin, 
             // Picasso.get().load("file://" + url).into(target3);
             copyFile(new File(url), new File(activity.getFilesDir().toPath() + "/file.mp4"));
             redirectToLiveWallpaper = false;
-            VideoLiveWallpaper mVideoLiveWallpaper = new VideoLiveWallpaper();
+            VideoLiveWallpaperService mVideoLiveWallpaper = new VideoLiveWallpaperService();
             mVideoLiveWallpaper.setToWallPaper(context);
             result.success(true);
 
