@@ -57,6 +57,8 @@ public class AsyncWallpaperPlugin extends Application implements FlutterPlugin, 
 
     private boolean redirectToLiveWallpaper;
     private boolean goToHome;
+    private boolean isAudioEnabled;
+    private float playbackSpeed;
 
     private Target target = new Target() {
         @Override
@@ -252,11 +254,13 @@ public class AsyncWallpaperPlugin extends Application implements FlutterPlugin, 
         } else if (call.method.equals("set_video_wallpaper")) {
             String url = call.argument("url"); // .argument returns the correct type
             goToHome = call.argument("goToHome"); // .argument returns the correct type
+            playbackSpeed = Float.parseFloat(call.argument("playbackSpeed").toString()); 
+            isAudioEnabled = call.argument("isAudioEnabled"); 
             android.util.Log.i("Arguments ", "configureFlutterEngine: " + url);
             // Picasso.get().load("file://" + url).into(target3);
             copyFile(new File(url), new File(activity.getFilesDir().toPath() + "/file.mp4"));
             redirectToLiveWallpaper = false;
-            VideoLiveWallpaperService mVideoLiveWallpaper = new VideoLiveWallpaperService();
+            VideoLiveWallpaperService mVideoLiveWallpaper = new VideoLiveWallpaperService(playbackSpeed, isAudioEnabled);
             mVideoLiveWallpaper.setToWallPaper(context);
             result.success(true);
 

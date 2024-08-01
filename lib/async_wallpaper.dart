@@ -324,6 +324,8 @@ class AsyncWallpaper {
   /// to show the set wallpaper. If wallpaper set fails, user won't be taken to home screen.
   static Future<bool> setLiveWallpaper({
     required String filePath,
+    double playbackSpeed = 1.0,
+    bool isAudioEnabled = false,
     bool goToHome = false,
     ToastDetails? toastDetails,
     ToastDetails? errorToastDetails,
@@ -335,6 +337,8 @@ class AsyncWallpaper {
     final options = {
       'url': filePath,
       'goToHome': goToHome,
+      'playbackSpeed': playbackSpeed,
+      'isAudioEnabled': isAudioEnabled,
     };
 
     result = await _channel.invokeMethod(

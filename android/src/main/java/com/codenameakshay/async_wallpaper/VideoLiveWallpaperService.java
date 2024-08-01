@@ -29,9 +29,18 @@ import java.io.IOException;
 public class VideoLiveWallpaperService extends WallpaperService {
 
     public static final String VIDEO_PARAMS_CONTROL_ACTION = "com.codenameakshay.async_wallpaper";
-    public static final String KEY_ACTION = "music";
-    public static final boolean ACTION_MUSIC_UNMUTE = false;
-    public static final boolean ACTION_MUSIC_MUTE = true;
+    // public static final String KEY_ACTION = "music";
+    // public static final boolean ACTION_MUSIC_UNMUTE = false;
+    // public static final boolean ACTION_MUSIC_MUTE = true;
+
+
+    private float playbackSpeed;
+    private boolean isAudioEnabled;
+
+    VideoLiveWallpaperService(float playbackSpeed, boolean isAudioEnabled) {
+this.playbackSpeed = playbackSpeed;
+this.isAudioEnabled = isAudioEnabled;
+    }
 
     public static void setToWallPaper(Context context) {
         final Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
@@ -64,12 +73,13 @@ public class VideoLiveWallpaperService extends WallpaperService {
             registerReceiver(broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    boolean action = intent.getBooleanExtra(KEY_ACTION, false);
+                    //boolean action = intent.getBooleanExtra(KEY_ACTION, false);
                     if (exoPlayer != null) {
-                        if (action) {
-                            exoPlayer.setVolume(0);
-                        } else {
+                        exoPlayer.setPlaybackSpeed(playbackSpeed);
+                        if (isAudioEnabled) {
                             exoPlayer.setVolume(1.0f);
+                        } else {
+                            exoPlayer.setVolume(0);
                         }
                     }
                 }
