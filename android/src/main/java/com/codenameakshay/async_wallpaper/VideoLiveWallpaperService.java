@@ -29,22 +29,17 @@ import java.io.IOException;
 public class VideoLiveWallpaperService extends WallpaperService {
 
     public static final String VIDEO_PARAMS_CONTROL_ACTION = "com.codenameakshay.async_wallpaper";
-    // public static final String KEY_ACTION = "music";
+    public static final String KEY_AUDIO = "audio";
+    public static final String KEY_PLAYBACK_SPEED = "playback_speed";
     // public static final boolean ACTION_MUSIC_UNMUTE = false;
     // public static final boolean ACTION_MUSIC_MUTE = true;
 
 
-    private float playbackSpeed;
-    private boolean isAudioEnabled;
-
-    VideoLiveWallpaperService(float playbackSpeed, boolean isAudioEnabled) {
-this.playbackSpeed = playbackSpeed;
-this.isAudioEnabled = isAudioEnabled;
-    }
-
-    public static void setToWallPaper(Context context) {
+    public static void setToWallPaper(Context context, float playbackSpeed, boolean isAudioEnabled) {
         final Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(VideoLiveWallpaperService.KEY_AUDIO, isAudioEnabled);
+        intent.putExtra(VideoLiveWallpaperService.KEY_PLAYBACK_SPEED, playbackSpeed);
         intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
                 new ComponentName(context, VideoLiveWallpaperService.class));
         context.startActivity(intent);
@@ -73,7 +68,8 @@ this.isAudioEnabled = isAudioEnabled;
             registerReceiver(broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    //boolean action = intent.getBooleanExtra(KEY_ACTION, false);
+                    boolean isAudioEnabled = intent.getBooleanExtra(KEY_AUDIO, false);
+                    float playbackSpeed = intent.getFloatExtra(KEY_PLAYBACK_SPEED, 1.0);
                     if (exoPlayer != null) {
                         exoPlayer.setPlaybackSpeed(playbackSpeed);
                         if (isAudioEnabled) {
