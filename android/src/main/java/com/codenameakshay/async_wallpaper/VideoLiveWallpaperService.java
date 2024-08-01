@@ -154,7 +154,10 @@ public class VideoLiveWallpaperService extends WallpaperService {
                 exoPlayer.release();
                 exoPlayer = null;
             }
+            if(broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+            }
         }
     }
 }
