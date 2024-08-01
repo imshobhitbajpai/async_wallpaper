@@ -1,21 +1,12 @@
 package com.codenameakshay.async_wallpaper;
 
 import android.annotation.SuppressLint;
-import android.app.WallpaperManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.Build;
 import android.service.wallpaper.WallpaperService;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-
-import androidx.annotation.RequiresApi;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -24,18 +15,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 
-import java.io.IOException;
-
 public class VideoLiveWallpaperService extends WallpaperService {
-
-    // public static final String VIDEO_PARAMS_CONTROL_ACTION = "com.codenameakshay.async_wallpaper";
-    // public static final String KEY_AUDIO = "audio";
-    // public static final String KEY_PLAYBACK_SPEED = "playback_speed";
-    // public static final boolean ACTION_MUSIC_UNMUTE = false;
-    // public static final boolean ACTION_MUSIC_MUTE = true;
-
-    public static float playbackSpeed = 1.0f;
-    public static boolean isAudioEnabled = false;
 
     @Override
     public Engine onCreateEngine() {
@@ -52,29 +32,16 @@ public class VideoLiveWallpaperService extends WallpaperService {
             initializeExoPlayer(holder);
         }
 
-        private void setExoPlayerCustomData() {
-            if (exoPlayer != null) {
-                exoPlayer.setPlaybackSpeed(playbackSpeed);
-                if (isAudioEnabled) {
-                    exoPlayer.setVolume(1.0f);
-                } else {
-                    exoPlayer.setVolume(0);
-                }
-            }
-        }
-
         private void initializeExoPlayer(SurfaceHolder holder) {
             try {
                 if (exoPlayer == null) {
-                    exoPlayer = new SimpleExoPlayer.Builder(getApplicationContext()).build();
+                    SharedPreferences sharedPreferences = getSharedPreferences("WallpaperPreferences", Context.MODE_PRIVATE);
 
-                    // Create and configure PlayerView
+                    exoPlayer = new SimpleExoPlayer.Builder(getApplicationContext()).build();
                     PlayerView playerView = new PlayerView(getApplicationContext());
                     playerView.setPlayer(exoPlayer);
                     playerView.setUseController(false);
                     playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
-
-                    // Set the SurfaceView of PlayerView to the provided SurfaceHolder
                     exoPlayer.setVideoSurfaceHolder(holder);
 
                     // Uri videoUri = Uri.parse("asset:///test_video.mp4");
@@ -84,14 +51,14 @@ public class VideoLiveWallpaperService extends WallpaperService {
                     exoPlayer.setMediaItem(mediaItem);
                     exoPlayer.setRepeatMode(ExoPlayer.REPEAT_MODE_ONE);
                     exoPlayer.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
+                    exoPlayer.setPlaybackSpeed(sharedPreferences.getFloat("playbackSpeed", 1.0f));
+                    exoPlayer.setVolume(sharedPreferences.getBoolean("isAudioEnabled", false) ? 1.0f : 0);
                     exoPlayer.prepare();
                     exoPlayer.play();
-                    setExoPlayerCustomData();
                     Log.d("VideoEngine", "ExoPlayer started successfully");
                 }
             } catch (Exception e) {
                 Log.e("VideoEngine", "Error initializing ExoPlayer", e);
-                e.printStackTrace();
             }
         }
 

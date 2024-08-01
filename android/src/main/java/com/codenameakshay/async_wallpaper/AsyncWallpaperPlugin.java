@@ -1,6 +1,7 @@
 package com.codenameakshay.async_wallpaper;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.app.Application;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
@@ -251,15 +252,21 @@ public class AsyncWallpaperPlugin extends Application implements FlutterPlugin, 
             // result.success(1);
 
         } else if (call.method.equals("set_video_wallpaper")) {
-            String url = call.argument("url"); // .argument returns the correct type
+            final String url = call.argument("url"); // .argument returns the correct type
             goToHome = call.argument("goToHome"); // .argument returns the correct type
-            VideoLiveWallpaperService.playbackSpeed = Float.parseFloat(call.argument("playbackSpeed").toString()); 
-            VideoLiveWallpaperService.isAudioEnabled = call.argument("isAudioEnabled"); 
+            final float playbackSpeed = Float.parseFloat(call.argument("playbackSpeed").toString()); 
+            final boolean isAudioEnabled = call.argument("isAudioEnabled"); 
             android.util.Log.i("Arguments ", "configureFlutterEngine: " + url);
             // Picasso.get().load("file://" + url).into(target3);
             copyFile(new File(url), new File(activity.getFilesDir().toPath() + "/file.mp4"));
             redirectToLiveWallpaper = false;
             
+            SharedPreferences sharedPreferences = context.getSharedPreferences("WallpaperPreferences", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putFloat("playbackSpeed", playbackSpeed);
+            editor.putBoolean("isAudioEnabled", isAudioEnabled);
+            editor.apply();
+
             final Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
