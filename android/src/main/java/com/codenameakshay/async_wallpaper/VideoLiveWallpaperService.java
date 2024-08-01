@@ -56,6 +56,8 @@ public class VideoLiveWallpaperService extends WallpaperService {
     }
 
     class VideoEngine extends Engine {
+        private boolean isAudioEnabled;
+        private float playbackSpeed;
         private SimpleExoPlayer exoPlayer;
         private PlayerView playerView;
         private BroadcastReceiver broadcastReceiver;
@@ -68,16 +70,9 @@ public class VideoLiveWallpaperService extends WallpaperService {
             registerReceiver(broadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    boolean isAudioEnabled = intent.getBooleanExtra(KEY_AUDIO, false);
-                    float playbackSpeed = intent.getFloatExtra(KEY_PLAYBACK_SPEED, 1.0);
-                    if (exoPlayer != null) {
-                        exoPlayer.setPlaybackSpeed(playbackSpeed);
-                        if (isAudioEnabled) {
-                            exoPlayer.setVolume(1.0f);
-                        } else {
-                            exoPlayer.setVolume(0);
-                        }
-                    }
+                     isAudioEnabled = intent.getBooleanExtra(KEY_AUDIO, false);
+                     playbackSpeed = intent.getFloatExtra(KEY_PLAYBACK_SPEED, 1.0f);
+                     setExoPlayerCustomData();
                 }
             }, intentFilter, Context.RECEIVER_NOT_EXPORTED);
         }
@@ -87,6 +82,17 @@ public class VideoLiveWallpaperService extends WallpaperService {
         public void onSurfaceCreated(SurfaceHolder holder) {
             super.onSurfaceCreated(holder);
             initializeExoPlayer(holder);
+        }
+
+        private setExoPlayerCustomData() {
+            if (exoPlayer != null) {
+                exoPlayer.setPlaybackSpeed(playbackSpeed);
+                if (isAudioEnabled) {
+                    exoPlayer.setVolume(1.0f);
+                } else {
+                    exoPlayer.setVolume(0);
+                }
+            }
         }
 
         private void initializeExoPlayer(SurfaceHolder holder) {
@@ -112,7 +118,7 @@ public class VideoLiveWallpaperService extends WallpaperService {
                     exoPlayer.setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
                     exoPlayer.prepare();
                     exoPlayer.play();
-                    exoPlayer.setVolume(0);
+                    setExoPlayerCustomData();
                     Log.d("VideoEngine", "ExoPlayer started successfully");
                 }
             } catch (Exception e) {
