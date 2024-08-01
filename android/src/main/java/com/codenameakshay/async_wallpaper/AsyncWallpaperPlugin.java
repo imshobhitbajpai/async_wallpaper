@@ -3,6 +3,7 @@ package com.codenameakshay.async_wallpaper;
 import android.app.Activity;
 import android.app.Application;
 import android.app.WallpaperManager;
+import android.content.ComponentName;
 import android.graphics.BitmapFactory;
 import android.content.ContentValues;
 import android.content.Context;
@@ -57,8 +58,6 @@ public class AsyncWallpaperPlugin extends Application implements FlutterPlugin, 
 
     private boolean redirectToLiveWallpaper;
     private boolean goToHome;
-    private boolean isAudioEnabled;
-    private float playbackSpeed;
 
     private Target target = new Target() {
         @Override
@@ -254,14 +253,24 @@ public class AsyncWallpaperPlugin extends Application implements FlutterPlugin, 
         } else if (call.method.equals("set_video_wallpaper")) {
             String url = call.argument("url"); // .argument returns the correct type
             goToHome = call.argument("goToHome"); // .argument returns the correct type
-            playbackSpeed = Float.parseFloat(call.argument("playbackSpeed").toString()); 
-            isAudioEnabled = call.argument("isAudioEnabled"); 
+            VideoLiveWallpaperService.playbackSpeed = Float.parseFloat(call.argument("playbackSpeed").toString()); 
+            VideoLiveWallpaperService.isAudioEnabled = call.argument("isAudioEnabled"); 
             android.util.Log.i("Arguments ", "configureFlutterEngine: " + url);
             // Picasso.get().load("file://" + url).into(target3);
             copyFile(new File(url), new File(activity.getFilesDir().toPath() + "/file.mp4"));
             redirectToLiveWallpaper = false;
-            VideoLiveWallpaperService mVideoLiveWallpaper = new VideoLiveWallpaperService();
-            mVideoLiveWallpaper.setToWallPaper(context, playbackSpeed, isAudioEnabled);
+            
+            final Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                    new ComponentName(context, VideoLiveWallpaperService.class));
+            context.startActivity(intent);
+            try {
+                WallpaperManager.getInstance(context).clear();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             result.success(true);
 
         } else {

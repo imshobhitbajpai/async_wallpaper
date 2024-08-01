@@ -37,21 +37,6 @@ public class VideoLiveWallpaperService extends WallpaperService {
     public static float playbackSpeed = 1.0f;
     public static boolean isAudioEnabled = false;
 
-    public static void setToWallPaper(Context context, float playbackSpeed, boolean isAudioEnabled) {
-        VideoLiveWallpaperService.playbackSpeed = playbackSpeed;
-        VideoLiveWallpaperService.isAudioEnabled = isAudioEnabled;
-        final Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                new ComponentName(context, VideoLiveWallpaperService.class));
-        context.startActivity(intent);
-        try {
-            WallpaperManager.getInstance(context).clear();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public Engine onCreateEngine() {
         return new VideoEngine();
