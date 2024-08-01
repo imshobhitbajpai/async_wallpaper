@@ -28,18 +28,20 @@ import java.io.IOException;
 
 public class VideoLiveWallpaperService extends WallpaperService {
 
-    public static final String VIDEO_PARAMS_CONTROL_ACTION = "com.codenameakshay.async_wallpaper";
-    public static final String KEY_AUDIO = "audio";
-    public static final String KEY_PLAYBACK_SPEED = "playback_speed";
+    // public static final String VIDEO_PARAMS_CONTROL_ACTION = "com.codenameakshay.async_wallpaper";
+    // public static final String KEY_AUDIO = "audio";
+    // public static final String KEY_PLAYBACK_SPEED = "playback_speed";
     // public static final boolean ACTION_MUSIC_UNMUTE = false;
     // public static final boolean ACTION_MUSIC_MUTE = true;
 
+    public static float playbackSpeed = 1.0f;
+    public static boolean isAudioEnabled = false;
 
     public static void setToWallPaper(Context context, float playbackSpeed, boolean isAudioEnabled) {
+        VideoLiveWallpaperService.playbackSpeed = playbackSpeed;
+        VideoLiveWallpaperService.isAudioEnabled = isAudioEnabled;
         final Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(VideoLiveWallpaperService.KEY_AUDIO, isAudioEnabled);
-        intent.putExtra(VideoLiveWallpaperService.KEY_PLAYBACK_SPEED, playbackSpeed);
         intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
                 new ComponentName(context, VideoLiveWallpaperService.class));
         context.startActivity(intent);
@@ -56,26 +58,7 @@ public class VideoLiveWallpaperService extends WallpaperService {
     }
 
     class VideoEngine extends Engine {
-        private boolean isAudioEnabled;
-        private float playbackSpeed;
         private SimpleExoPlayer exoPlayer;
-        private PlayerView playerView;
-        private BroadcastReceiver broadcastReceiver;
-
-        @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-        @Override
-        public void onCreate(SurfaceHolder surfaceHolder) {
-            super.onCreate(surfaceHolder);
-            IntentFilter intentFilter = new IntentFilter(VideoLiveWallpaperService.VIDEO_PARAMS_CONTROL_ACTION);
-            registerReceiver(broadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                     isAudioEnabled = intent.getBooleanExtra(KEY_AUDIO, false);
-                     playbackSpeed = intent.getFloatExtra(KEY_PLAYBACK_SPEED, 1.0f);
-                     setExoPlayerCustomData();
-                }
-            }, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-        }
 
         @SuppressLint("SdCardPath")
         @Override
@@ -101,7 +84,7 @@ public class VideoLiveWallpaperService extends WallpaperService {
                     exoPlayer = new SimpleExoPlayer.Builder(getApplicationContext()).build();
 
                     // Create and configure PlayerView
-                    playerView = new PlayerView(getApplicationContext());
+                    PlayerView playerView = new PlayerView(getApplicationContext());
                     playerView.setPlayer(exoPlayer);
                     playerView.setUseController(false);
                     playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
@@ -154,10 +137,7 @@ public class VideoLiveWallpaperService extends WallpaperService {
                 exoPlayer.release();
                 exoPlayer = null;
             }
-            if(broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
-            }
         }
     }
 }
+
