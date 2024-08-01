@@ -84,7 +84,7 @@ public class VideoLiveWallpaperService extends WallpaperService {
             initializeExoPlayer(holder);
         }
 
-        private setExoPlayerCustomData() {
+        private void setExoPlayerCustomData() {
             if (exoPlayer != null) {
                 exoPlayer.setPlaybackSpeed(playbackSpeed);
                 if (isAudioEnabled) {
